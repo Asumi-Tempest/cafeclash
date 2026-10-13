@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Café Clash: Midnight Brew — Story Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Quicksand:wght@600;750&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wood-dark: #6c4228;
+    --wood-main: #b88654;
+    --wood-light: #e3bc88;
+    --wood-border: #422413;
+    --cream-bg: #fdf5e6;
+    --gold: #e6b84c;
+    --text-brown: #331a0d;
+  }
+  * { box-sizing: border-box; }
+  
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(135deg, #a4c988, #679d67);
+    overflow: hidden;
+    font-family: 'Quicksand', sans-serif;
+    color: var(--text-brown);
+    user-select: none;
+  }
+
+  .story-viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 40px;
+    background: radial-gradient(circle at 50% 40%, rgba(184, 214, 156, 0.95) 0%, rgba(103, 157, 103, 0.98) 80%);
+    overflow: hidden;
+    transition: background 0.5s ease;
+  }
+
+  .story-viewport.shake {
+    animation: screenShake 0.3s ease-in-out;
+  }
+  @keyframes screenShake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 4px); }
+    40% { transform: translate(5px, -4px); }
+    60% { transform: translate(-4px, -2px); }
+    80% { transform: translate(3px, 5px); }
+  }
+
+  .top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--wood-main);
+    border: 4px solid var(--wood-border);
+    border-radius: 12px;
+    padding: 10px 22px;
+    box-shadow: 0 6px 0 var(--wood-dark), 0 10px 20px rgba(0,0,0,0.3);
+    z-index: 10;
+  }
+
+  .chapter-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--cream-bg);
+  }
+
+  .character-stage {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 90px; /* lower body tucks behind the dialogue box */
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #sprite {
+    height: 72vh;
+    max-width: 90vw;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 18px rgba(0,0,0,0.45));
+    display: none;
+    image-rendering: pixelated;
+  }
+  #sprite.enter { animation: spriteIn 0.35s ease-out; }
+  @keyframes spriteIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Emoji fallback when an image is missing */
+  #spriteEmoji {
+    display: none;
+    font-size: 220px;
+    line-height: 1;
+    margin-bottom: 60px;
+    filter: drop-shadow(0 12px 18px rgba(0,0,0,0.4));
+  }
+  #spriteEmoji.enter { animation: spriteIn 0.35s ease-out; }
+
+  .dialogue-box {
+    position: relative;
+    z-index: 10;
+    background: var(--cream-bg);
+    border: 4px solid var(--wood-border);
+    border-radius: 16px;
+    padding: 20px 25px;
+    box-shadow: 0 8px 0 var(--wood-dark), 0 15px 30px rgba(0,0,0,0.35);
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .speaker-badge {
+    position: absolute;
+    top: -22px;
+    left: 20px;
+    background: var(--wood-main);
+    border: 3px solid var(--wood-border);
+    color: var(--cream-bg);
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 2px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 0 var(--wood-dark);
+  }
+
+  .dialogue-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-brown);
+    line-height: 1.4;
+    margin-top: 5px;
+    min-height: 50px;
+  }
+
+  .dialogue-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #7a5c44;
+    border-top: 2px dashed #d1bfa7;
+    padding-top: 8px;
+    margin-top: 10px;
+  }
+
+  .choice-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+    z-index: 20;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .choice-btn {
+    width: 450px;
+    background: var(--cream-bg);
+    border: 4px solid var(--wood-border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--wood-border);
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--wood-dark), 0 10px 20px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+  .choice-btn:hover { background: var(--wood-light); transform: translateY(-3px); }
+  .choice-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--wood-dark); }
+
+  .wood-btn {
+    background: var(--wood-dark);
+    border: 2px solid var(--wood-border);
+    color: var(--wood-light);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--wood-border);
+    transition: all 0.1s ease;
+  }
+  .wood-btn:hover { background: var(--wood-border); color: #fff; }
+
+  #bgScene { position: absolute; inset: -30px; z-index: 0; transition: transform .15s linear; pointer-events: none; }
+  .bgImg { position: absolute; inset: 0; background-size: cover; background-position: center bottom; image-rendering: pixelated; animation: drift 22s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: scale(1.04) translateX(-1.5%); } to { transform: scale(1.12) translateX(1.5%); } }
+  #bgScene.flicker { animation: flick 1s steps(1); } @keyframes flick { 0%,20%,40%,60% { filter: brightness(1.7) saturate(1.6); } 10%,30%,50%,100% { filter: brightness(.6); } }
+  #bgFx, #fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  #bgFx { z-index: 1; } #fx { z-index: 4; }
+  #baseTint, #tint, #pulse { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+  #tint { opacity: 0; z-index: 3; } #tint.on { animation: tintPulse var(--ms) ease-out; } @keyframes tintPulse { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+  #pulse { animation: pulseLoop 4s ease-in-out infinite; } @keyframes pulseLoop { 50% { opacity: .25; } }
+  .pt { position: absolute; opacity: 0; font-family: 'Baloo 2'; font-weight: 800; animation-iteration-count: infinite; animation-timing-function: linear; }
+  @keyframes pUp { 0% { transform: translate(0,0); opacity: 0; } 12%,80% { opacity: .85; } 100% { transform: translate(var(--sx), -118vh); opacity: 0; } }
+  @keyframes pDown { 0% { transform: translate(0,0); opacity: 0; } 12%,80% { opacity: .85; } 100% { transform: translate(var(--sx), 118vh); opacity: 0; } }
+  @keyframes pRight { 0% { transform: translateX(0); opacity: 0; } 15%,80% { opacity: .8; } 100% { transform: translateX(125vw); opacity: 0; } }
+  .beam { position: absolute; top: -5%; width: 170px; height: 120%; transform-origin: top center; background: linear-gradient(rgba(255,255,255,.3), transparent 85%); clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%); animation: sway 5s ease-in-out infinite alternate; }
+  @keyframes sway { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+  .fx { position: absolute; font-family: 'Baloo 2'; font-weight: 800; text-shadow: 2px 2px 0 #000; transform: translate(-50%,-50%); opacity: 0; animation: fxMove ease-out forwards; }
+  @keyframes fxMove { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2) rotate(120deg); } }
+  .flashfx { position: absolute; inset: 0; animation: flashfx var(--ms) ease-out forwards; } @keyframes flashfx { 0% { opacity: .8; } 100% { opacity: 0; } }
+  .ringfx { position: absolute; width: 360px; height: 360px; border: 6px solid var(--c); border-radius: 50%; transform: translate(-50%,-50%) scale(.1); animation: ringfx 1.1s ease-out forwards; } @keyframes ringfx { to { transform: translate(-50%,-50%) scale(1.5); opacity: 0; } }
+  .story-viewport.rumble { animation: rumble .9s linear; } @keyframes rumble { 0%,100% { transform: translate(0,0); } 10% { transform: translate(-5px,3px); } 20% { transform: translate(4px,-3px); } 30% { transform: translate(-3px,-4px); } 40% { transform: translate(5px,2px); } 50% { transform: translate(-4px,3px); } 60% { transform: translate(3px,-2px); } 70% { transform: translate(-5px,-3px); } 80% { transform: translate(4px,4px); } 90% { transform: translate(-2px,-2px); } }
+  .character-stage { transform-origin: 50% 100%; animation: breathe 3.6s ease-in-out infinite; } @keyframes breathe { 50% { transform: scaleY(1.01); } }
+  .character-stage.talk { animation: talk .26s ease-in-out infinite alternate; } @keyframes talk { to { transform: translateY(-7px) scaleY(1.012); } }
+  #sprite.tremble { animation: tremble .5s linear; } @keyframes tremble { 0%,100% { transform: translateX(0); } 15% { transform: translateX(-9px); } 30% { transform: translateX(8px); } 45% { transform: translateX(-6px); } 60% { transform: translateX(5px); } 80% { transform: translateX(-3px); } }
+  .speaker-badge.narr { background: #2a1a3a; font-style: italic; }
+  .choice-btn { animation: popBtn .35s cubic-bezier(.2,1.5,.4,1) both; } #opt2Btn { animation-delay: .12s; } @keyframes popBtn { from { transform: scale(.6) translateY(20px); opacity: 0; } }
+  #titleCard { position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(12,6,26,.9); pointer-events: none; animation: tcOut .6s 2.1s forwards; }
+  #titleCard.boss { background: rgba(40,4,8,.92); } #titleCard.boss .tc-title { color: #ff6b5a; }
+  .tc-line { height: 6px; width: min(70vw, 560px); background: var(--gold); animation: grow .7s ease-out both; } @keyframes grow { from { transform: scaleX(0); } }
+  .tc-num { font: 800 20px 'Baloo 2'; letter-spacing: 8px; color: var(--wood-light); animation: fadeUp .6s .2s both; }
+  .tc-title { font: 800 clamp(34px, 6vw, 64px) 'Baloo 2'; color: var(--cream-bg); text-shadow: 4px 4px 0 var(--wood-border); text-align: center; animation: tcPop .7s .35s cubic-bezier(.2,1.5,.4,1) both; }
+  .tc-set { font: 700 16px 'Quicksand'; color: var(--wood-light); animation: fadeUp .6s .7s both; }
+  @keyframes fadeUp { from { transform: translateY(16px); opacity: 0; } } @keyframes tcPop { from { transform: scale(1.6); opacity: 0; } } @keyframes tcOut { to { opacity: 0; visibility: hidden; } }
+</style>
+</head>
+<body>
+
+<div class="story-viewport" id="viewport" onclick="advanceStory()">
+  <div id="bgScene"><div class="bgImg" id="bgImg"></div></div>
+  <div id="baseTint"></div><div id="pulse"></div><div id="bgFx"></div><div id="tint"></div><div id="fx"></div>
+  <div id="titleCard"><div class="tc-line"></div><div class="tc-num" id="tcNum"></div><div class="tc-title" id="tcTitle"></div><div class="tc-set" id="tcSet"></div><div class="tc-line"></div></div>
+  <div class="top-header" onclick="event.stopPropagation()">
+    <div class="chapter-title" id="chapterTitle">CHAPTER 1: THE MIDNIGHT SHIFT</div>
+    <div style="display:flex;gap:8px"><button class="wood-btn" id="muteBtn" onclick="toggleMute()">🔊</button><button class="wood-btn" onclick="window.location.href='map.html'">🗺️ Return to Map</button></div>
+  </div>
+
+  <div class="character-stage" id="stage">
+    <img id="sprite" alt="">
+    <div id="spriteEmoji"></div>
+  </div>
+  <div id="imgDebug" style="position:absolute;left:12px;bottom:6px;z-index:30;font:12px monospace;color:#fff;background:rgba(160,30,30,.85);padding:3px 8px;border-radius:6px;display:none;pointer-events:none;"></div>
+
+  <div class="dialogue-box">
+    <div class="speaker-badge" id="speakerLabel">Kairo</div>
+    <div class="dialogue-text" id="dialogueText">Loading story script...</div>
+    <div class="dialogue-footer">
+      <div>Click anywhere to continue ▶</div>
+      <div id="progressIndicator">1 / 7</div>
+    </div>
+  </div>
+
+  <div class="choice-overlay" id="choiceOverlay" onclick="event.stopPropagation()">
+    <div style="font-family: 'Baloo 2', sans-serif; font-size: 22px; color: var(--cream-bg); margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);" id="choiceTitle">Make Your Choice</div>
+    <button class="choice-btn" id="opt1Btn" onclick="makeChoice(0)">Option 1</button>
+    <button class="choice-btn" id="opt2Btn" onclick="makeChoice(1)">Option 2</button>
+  </div>
+</div>
+
+<script src="campaign.js"></script>
+<script src="cloud.js"></script>
+<script src="music.js"></script>
+<script>
+const nodeId = localStorage.getItem("current_node") || "ch1_1", phase = localStorage.getItem("story_phase") || "pre";
+const N = CC.node(nodeId), lines = [...CC.lines(nodeId, phase)], $ = id => document.getElementById(id);
+let i = 0, typing = false, timer = null, full = "";
+
+const EXPRESSIONS = ["neutral", "happy", "sad", "surprised", "angry"];
+let lastSprite = "";
+
+const EXTS = ["png", "PNG", "jpg", "jpeg", "JPG", "webp"];
+
+function setSprite(charName, expression) {
+  const c = CHARS[charName] || CHARS.Narrator;
+  const sprite = $("sprite"), emoji = $("spriteEmoji"), dbg = $("imgDebug");
+
+  // Narrator: nobody on stage
+  if (!c.folder) { sprite.style.display = "none"; emoji.style.display = "none"; dbg.style.display = "none"; lastSprite = ""; return; }
+
+  const key = charName + "|" + expression;
+  const changed = key !== lastSprite;
+  lastSprite = key;
+
+  const base = "Characters/" + c.folder + "/" + expression;
+  let n = 0;
+  const tryNext = () => {
+    if (n >= EXTS.length) {
+      // No image file found: draw the character instead
+      sprite.onerror = null;
+      sprite.src = drawSprite(charName, expression);
+      return;
+    }
+    sprite.src = base + "." + EXTS[n++];
+  };
+  sprite.onerror = tryNext;
+  sprite.onload = () => { emoji.style.display = "none"; dbg.style.display = "none"; sprite.style.display = "block"; };
+  sprite.alt = charName;
+  tryNext();
+
+  if (changed) {
+    [sprite, emoji].forEach(el => { el.classList.remove("enter"); void el.offsetWidth; el.classList.add("enter"); });
+  }
+}
+
+function show() {
+  const d = lines[i];
+  $("chapterTitle").innerText = "CHAPTER " + N.c + ": " + N.chapter.t.toUpperCase() + " (LV " + N.l + ")";
+  $("progressIndicator").innerText = (i + 1) + " / " + lines.length;
+  if (d.q) { $("choiceTitle").innerText = d.q; $("opt1Btn").innerText = d.o[0][0]; $("opt2Btn").innerText = d.o[1][0]; $("choiceOverlay").style.display = "flex"; return; }
+  $("choiceOverlay").style.display = "none";
+
+  const charName = d[0];
+  $("speakerLabel").innerText = charName;
+
+  // Third slot: "!" = shake, "angry" = expression, "angry!" = both
+  const tag = typeof d[2] === "string" ? d[2] : "";
+  const shake = tag.includes("!");
+  const expr = tag.replace("!", "");
+  const expression = EXPRESSIONS.includes(expr) ? expr : "neutral";
+
+  setSprite(charName, expression);
+  $("speakerLabel").classList.toggle("narr", charName === "Narrator");
+  fxForLine(charName, d[1], expression, shake);
+
+  if (shake) { const v = $("viewport"); v.classList.add("shake"); setTimeout(() => v.classList.remove("shake"), 300); }
+  type(d[1]);
+}
+
+function stopTyping() { clearInterval(timer); typing = false; $("stage").classList.remove("talk"); }
+function type(t) {
+  clearInterval(timer); full = t; let k = 0; typing = true; $("dialogueText").innerText = "";
+  if (lines[i][0] !== "Narrator") $("stage").classList.add("talk");
+  timer = setInterval(() => {
+    $("dialogueText").innerText = t.slice(0, ++k);
+    if (k % 2 === 0 && t[k - 1] !== " ") blip(lines[i][0]);
+    if (k >= t.length) stopTyping();
+  }, 20);
+}
+
+function advanceStory() {
+  if (!ready) { begin(); return; }
+  const d = lines[i]; if (d.q) return;
+  if (typing) { stopTyping(); $("dialogueText").innerText = full; return; }
+  i++; i < lines.length ? show() : end();
+}
+
+function makeChoice(k) { const o = lines[i].o[k]; lines.splice(i + 1, 0, [o[1], o[2]]); i++; show(); }
+
+function end() {
+  if (phase === "pre") { location.href = "combat.html"; }
+  else { CC.complete(nodeId); localStorage.setItem("story_phase", "pre"); location.href = "map.html"; }
+}
+
+  const PAL = [["windows","#2b2140","#362a52","#4a3426","#3d2a1e","#ffd37a","#14204a"],["shelves","#5a3a2a","#6a4630","#888c94","#777b83","#ff7a2a","#e6b84c"],["windows","#f3c9d6","#f7d7e0","#fff3e0","#f0dcc4","#ff8fb0","#9fd8ff"],["windows","#2e3a52","#38475f","#20283a","#283148","#e6b84c","#1a2a4a"],["neon","#1a1038","#22184a","#12082a","#1b0d38","#ff3df2","#3dfff2"],["pipes","#3a4658","#445068","#2a323f","#323b4a","#ffd23a","#ff6b3a"],["neon","#20102e","#2a1640","#3b1f2e","#2f1824","#ff4d6d","#ffd23a"],["shelves","#e9d7a8","#f1e2b8","#c9a96a","#b99858","#d33","#3a7bd5"],["pipes","#102a2e","#16383d","#0c1c20","#10262b","#3dffa6","#3da6ff"],["neon","#281040","#341852","#1a0a2e","#220f3c","#ffe04a","#c06bff"]];
+  function sceneUri(ch) {
+    const [kind, w1, w2, f1, f2, a1, a2] = PAL[ch - 1] || PAL[0];
+    const R = (x,y,w,h,k) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${k}"/>`;
+    let s = R(0,0,64,24,w1) + R(0,17,64,6,w2) + R(0,23,64,1,"#000");
+    for (let r = 0; r < 4; r++) for (let x = 0; x < 64; x += 4) s += R(x, 24 + r * 3, 4, 3, ((x / 4 + r) % 2) ? f1 : f2);
+    if (kind === "windows") { [6,27,48].forEach((x,i) => { s += R(x-1,4,12,14,"#000") + R(x,5,10,12,a2) + R(x+4,5,2,12,"#000") + R(x,10,10,2,"#000") + R(x+1,6,1,1,"#fff") + R(x+7,13,1,1,"#fff"); }); [16,38,58].forEach(x => { s += R(x,0,1,3,"#000") + R(x-1,3,3,2,a1); }); }
+    if (kind === "shelves") [6,13].forEach(y => { s += R(3,y+3,58,1,"#2a170b"); for (let x = 5, i = 0; x < 58; x += 5, i++) s += R(x,y,3,3,i % 2 ? a1 : a2); });
+    if (kind === "neon") { for (let x = 3, i = 0; x < 62; x += 8, i++) s += R(x,2,2,19,i % 2 ? a1 : a2); s += R(0,20,64,1,a1) + R(0,3,64,1,a2); }
+    if (kind === "pipes") [8,24,40,56].forEach(x => { s += R(x,0,4,23,"#555d6b") + R(x+1,0,1,23,"#8a93a3") + R(x-1,11,6,2,a1) + R(x+1,6,2,2,a2); });
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 36" shape-rendering="crispEdges">${s}</svg>`);
+  }
+
+// ================= story effects =================
+let ready = false, muted = localStorage.getItem("cc_muted") === "1", AC = null;
+const rand = (a, b) => a + Math.random() * (b - a), pick = arr => arr[Math.floor(Math.random() * arr.length)];
+$("muteBtn").innerText = muted ? "🔇" : "🔊";
+function toggleMute() { muted = !muted; localStorage.setItem("cc_muted", muted ? "1" : "0"); $("muteBtn").innerText = muted ? "🔇" : "🔊"; }
+function blip(name) {
+  if (muted) return;
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); let h = 0; for (const ch of name) h += ch.charCodeAt(0);
+    const o = AC.createOscillator(), g = AC.createGain(); o.type = "square"; o.frequency.value = name === "Narrator" ? 150 : 200 + (h % 9) * 38; g.gain.value = .02;
+    o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + .035); } catch (e) {}
+}
+
+function part(x, y, txt, o = {}) {
+  const e = document.createElement("div"); e.className = "fx"; e.textContent = txt; const dur = o.dur || 900, dl = o.delay || 0;
+  e.style.cssText = `left:${x}%;top:${y}%;font-size:${o.size || 22}px;color:${o.color || "#fff"};--dx:${o.dx || 0}px;--dy:${o.dy === undefined ? -60 : o.dy}px;animation-duration:${dur}ms;animation-delay:${dl}ms`;
+  $("fx").appendChild(e); setTimeout(() => e.remove(), dur + dl + 60);
+}
+function burst(x, y, cols, n, sp, chars = ["■"]) { for (let i = 0; i < n; i++) part(x, y, pick(chars), { dx: rand(-sp, sp), dy: rand(-sp, sp), size: rand(10, 24), color: cols[i % cols.length], dur: rand(600, 1100) }); }
+function flash(col, ms) { const e = document.createElement("div"); e.className = "flashfx"; e.style.cssText = `background:${col};--ms:${ms}ms`; $("fx").appendChild(e); setTimeout(() => e.remove(), ms + 50); }
+function ring(x, y, col) { const e = document.createElement("div"); e.className = "ringfx"; e.style.cssText = `left:${x}%;top:${y}%;--c:${col}`; $("fx").appendChild(e); setTimeout(() => e.remove(), 1200); }
+function mood(bg, ms) { const t = $("tint"); t.style.background = bg; t.style.setProperty("--ms", ms + "ms"); t.classList.remove("on"); void t.offsetWidth; t.classList.add("on"); }
+const vig = c => `radial-gradient(circle, transparent 35%, ${c})`;
+function rumble() { const v = $("viewport"); v.classList.remove("rumble"); void v.offsetWidth; v.classList.add("rumble"); }
+function trem() { const sp = $("sprite"); sp.classList.remove("enter", "tremble"); void sp.offsetWidth; sp.classList.add("tremble"); }
+const rain = (ch, cols, n, sz) => { for (let i = 0; i < n; i++) part(rand(5, 95), -5, ch, { dy: 650, dx: rand(-60, 60), color: pick(cols), size: rand(sz[0], sz[1]), dur: rand(1400, 2200), delay: i * 70 }); };
+
+const FX = {
+  glow() { mood("radial-gradient(circle at 50% 55%, rgba(127,216,255,.75), transparent 65%)", 1400); burst(50, 50, ["#7fd8ff", "#fff"], 16, 240, ["✦", "■"]); },
+  fire() { flash("#ff7a2a", 280); rumble(); for (let i = 0; i < 28; i++) part(rand(8, 92), 96, "■", { dy: -rand(250, 560), dx: rand(-60, 60), color: pick(["#ff7a2a", "#ffb13d", "#ff3d1a"]), size: rand(6, 14), dur: rand(700, 1300) }); },
+  sugar() { rain("✦", ["#fff", "#ff9fc0", "#ffe0f0"], 24, [14, 26]); },
+  neon() { const b = $("bgScene"); b.classList.remove("flicker"); void b.offsetWidth; b.classList.add("flicker"); flash("rgba(255,61,242,.5)", 260); },
+  rumble() { rumble(); rain("■", ["#c9b79c", "#8f7f68"], 14, [5, 10]); },
+  notes() { for (let i = 0; i < 14; i++) part(rand(15, 85), 95, ["♪", "♫"][i % 2], { dy: -rand(300, 540), dx: rand(-80, 80), color: pick(["#ff4d6d", "#ffd23a", "#fff"]), size: rand(24, 40), dur: rand(1400, 2200), delay: i * 90 }); },
+  gold() { flash("rgba(230,184,76,.4)", 260); rain("$", ["#e6b84c", "#ffe9a0"], 16, [18, 30]); },
+  finale() { flash("rgba(255,233,160,.7)", 600); [[25, 32], [75, 32], [50, 22], [35, 55], [65, 55]].forEach((p, k) => setTimeout(() => burst(p[0], p[1], ["#ffe04a", "#ff7a9c", "#7fd8ff", "#fff"], 24, 220, ["✦", "■"]), k * 320)); },
+  chime() { ring(50, 45, "#ffe9a0"); setTimeout(() => ring(50, 45, "#ffe9a0"), 300); }
+};
+const KEYS = [
+  [/the end|settles|glow warmly|thanks for playing/i, "finale"],
+  [/glow|awaken|blue light|light strikes|reactor|energy|core chose|hums/i, "glow"],
+  [/heat|burst open|flame|fire|wok/i, "fire"],
+  [/shake|scream|rumble|trains/i, "rumble"],
+  [/sugar|syrup|cupcake|dough/i, "sugar"],
+  [/neon|flicker|boba/i, "neon"],
+  [/sing|concert|encore|voice|mic|stage/i, "notes"],
+  [/audit|corporation|foreclosure|golden|monopol|empire/i, "gold"],
+  [/clock|midnight|12:00/i, "chime"]
+];
+function fxForLine(name, text, ex, shake) {
+  if (shake) flash("rgba(255,255,255,.7)", 180);
+  const m = KEYS.find(k => k[0].test(text)); if (m) FX[m[1]]();
+  if (ex === "angry") { mood(vig("rgba(220,30,30,.7)"), 900); trem(); }
+  else if (ex === "sad") { mood(vig("rgba(40,70,160,.65)"), 1600); for (let i = 0; i < 8; i++) part(rand(5, 95), -5, "▪", { dy: 560, color: "#8fb8ff", size: 10, dur: 1800, delay: i * 120 }); }
+  else if (ex === "surprised") { part(58, 22, "!", { dy: -30, dur: 900, size: 68, color: "#ffe04a" }); trem(); }
+  else if (ex === "happy" && name !== "Narrator") burst(50, 38, ["#ffe04a", "#ff9fc0", "#fff"], 9, 170, ["✦"]);
+}
+
+// ---- ambient background life, themed per chapter ----
+const AMB = [
+  { ch: ["■"], col: ["#ffffff55"], dir: "up", n: 14, s: [10, 22], d: [7, 12] },
+  { ch: ["■"], col: ["#ff7a2a", "#ffb13d", "#ff4d1a"], dir: "up", n: 30, s: [6, 12], d: [3, 6] },
+  { ch: ["✦", "·"], col: ["#fff", "#ff9fc0", "#ffe0f0"], dir: "down", n: 26, s: [12, 22], d: [6, 10] },
+  { ch: ["$", "¤"], col: ["#e6b84c", "#ffe9a0"], dir: "down", n: 16, s: [16, 26], d: [7, 12] },
+  { ch: ["○"], col: ["#ff3df2", "#3dfff2", "#fff"], dir: "up", n: 22, s: [14, 30], d: [6, 11] },
+  { ch: ["━"], col: ["#ffffff88", "#ffd23a99"], dir: "right", n: 18, s: [20, 40], d: [.8, 1.6] },
+  { ch: ["♪", "♫"], col: ["#ff4d6d", "#ffd23a", "#fff"], dir: "up", n: 18, s: [20, 34], d: [6, 10] },
+  { ch: ["■", "·"], col: ["#fff", "#ffe9a0", "#f0d9a0"], dir: "down", n: 22, s: [6, 12], d: [8, 14] },
+  { ch: ["▪", "✦"], col: ["#3dffa6", "#3da6ff", "#fff"], dir: "up", n: 26, s: [8, 16], d: [3, 6] },
+  { ch: ["✦", "▪"], col: ["#ffe04a", "#c06bff", "#fff"], dir: "up", n: 30, s: [8, 18], d: [4, 9] }
+];
+const GLOW = ["#3a7bff", null, "#ff8fb0", "#e6b84c", "#ff3df2", null, "#ff4d6d", null, "#3dffa6", "#ffe04a"];
+function ambient(c) {
+  const a = AMB[c - 1] || AMB[0], box = $("bgFx");
+  for (let i = 0; i < a.n; i++) {
+    const p = document.createElement("div"), d = rand(a.d[0], a.d[1]);
+    p.className = "pt"; p.textContent = pick(a.ch);
+    const pos = a.dir === "up" ? `left:${rand(0, 100)}%;top:104%` : a.dir === "down" ? `left:${rand(0, 100)}%;top:-6%` : `left:-8%;top:${rand(0, 100)}%`;
+    p.style.cssText = `${pos};font-size:${rand(a.s[0], a.s[1])}px;color:${pick(a.col)};--sx:${rand(-70, 70)}px;animation-name:${a.dir === "up" ? "pUp" : a.dir === "down" ? "pDown" : "pRight"};animation-duration:${d}s;animation-delay:-${rand(0, d)}s`;
+    box.appendChild(p);
+  }
+  if (c === 7) [12, 46, 80].forEach((x, k) => { const b = document.createElement("div"); b.className = "beam"; b.style.cssText = `left:${x}%;animation-delay:-${k * 1.7}s;background:linear-gradient(${["rgba(255,77,109,.4)", "rgba(255,210,58,.35)", "rgba(255,255,255,.3)"][k]}, transparent 85%)`; box.appendChild(b); });
+  if (GLOW[c - 1]) $("pulse").style.background = `radial-gradient(circle at 50% 70%, ${GLOW[c - 1]}55, transparent 65%)`;
+}
+
+function begin() {
+  if (ready) return; ready = true;
+  $("titleCard").style.display = "none";
+  show();
+}
+
+// ---- boot ----
+MUSIC.play("story");
+$("bgImg").style.backgroundImage = `url("${sceneUri(N.c)}")`;
+$("baseTint").style.background = phase === "post" ? "rgba(255,200,110,.16)" : "rgba(10,5,40,.22)";
+ambient(N.c);
+$("viewport").addEventListener("mousemove", e => { const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5; $("bgScene").style.transform = `translate(${-x * 26}px,${-y * 14}px)`; });
+const card = phase === "pre" && N.l === 1 ? ["CHAPTER " + N.c, N.chapter.t, N.chapter.set, ""] : phase === "pre" && N.l === 5 ? ["BOSS BATTLE", N.chapter.boss.map(b => b[0]).join(" & "), N.chapter.t, "boss"] : null;
+if (card) { $("tcNum").innerText = card[0]; $("tcTitle").innerText = card[1]; $("tcSet").innerText = card[2]; if (card[3]) $("titleCard").classList.add("boss"); setTimeout(begin, 2600); }
+else begin();
+</script>
+</body>
+</html>

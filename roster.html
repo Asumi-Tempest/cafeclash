@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Café Clash: Midnight Brew — Roster</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Quicksand:wght@600;750&display=swap" rel="stylesheet">
+<style>
+  :root { --wd:#6c4228; --wm:#b88654; --wl:#e3bc88; --wb:#422413; --cream:#fdf5e6; --gold:#e6b84c; --brown:#331a0d; --green:#7ca968; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; min-height: 100%; font-family: 'Quicksand', sans-serif; color: var(--brown); user-select: none; background: linear-gradient(135deg, #4a321f, #2e1d11); background-attachment: fixed; }
+  #beans { position: fixed; inset: 0; pointer-events: none; overflow: hidden; } #beans i { position: absolute; bottom: -30px; background: rgba(227,188,136,.18); border: 2px solid rgba(108,66,40,.4); border-radius: 50%; animation: up linear infinite; }
+  @keyframes up { 0% { transform: translateY(0) rotate(0); opacity: 0; } 15%,85% { opacity: .6; } 100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+  .page { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; animation: fade .4s ease-out; }
+  @keyframes fade { from { opacity: 0; transform: translateY(14px); } }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--wm); border: 4px solid var(--wb); border-radius: 12px; padding: 10px 18px; box-shadow: 0 6px 0 var(--wd); }
+  .bar h1 { margin: 0; font: 800 22px 'Baloo 2'; color: var(--cream); }
+  .badge { background: var(--wd); border: 2px solid var(--wb); border-radius: 8px; padding: 3px 12px; font: 800 15px 'Baloo 2'; color: var(--cream); margin-right: 8px; }
+  .btn { background: var(--wd); border: 2px solid var(--wb); color: var(--wl); padding: 6px 14px; border-radius: 8px; font: 800 14px 'Baloo 2'; cursor: pointer; box-shadow: 0 3px 0 var(--wb); } .btn:hover { background: var(--wb); color: #fff; }
+  .main { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+  @media (max-width: 820px) { .main { grid-template-columns: 1fr; } }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+  .card { position: relative; background: var(--cream); border: 4px solid var(--wb); border-radius: 14px; padding: 8px 6px 8px; text-align: center; cursor: pointer; box-shadow: 0 5px 0 var(--wd); transition: transform .2s; animation: pop .4s cubic-bezier(.2,1.4,.4,1) both; }
+  .card:hover { transform: translateY(-6px); } .card.sel { outline: 4px solid var(--gold); transform: translateY(-6px); }
+  .card.Rare { border-color: #9933ff; } .card.Legendary { border-color: #ffaa00; } .card.Common { border-color: #3399ff; }
+  .card.locked img { filter: brightness(0) opacity(.3); } .card.locked { cursor: pointer; opacity: .85; }
+  .card .nm { font: 800 15px 'Baloo 2'; color: var(--wb); } .card .lv { font-size: 12px; font-weight: 800; color: var(--wd); }
+  .card .x { position: absolute; top: -8px; right: -8px; background: var(--gold); border: 2px solid var(--wb); border-radius: 50%; width: 24px; height: 24px; font: 800 11px 'Baloo 2'; display: flex; align-items: center; justify-content: center; }
+  @keyframes pop { from { transform: scale(0) rotate(-12deg); opacity: 0; } }
+  .panel { position: sticky; top: 14px; background: var(--cream); border: 5px solid var(--wb); border-radius: 18px; padding: 18px; text-align: center; box-shadow: 0 8px 0 var(--wd); animation: pop .4s both; overflow: hidden; }
+  .panel .sp { height: 220px; display: flex; align-items: flex-end; justify-content: center; } .panel .sp img { animation: bob 2.4s ease-in-out infinite; } @keyframes bob { 50% { transform: translateY(-8px); } }
+  .panel h2 { margin: 6px 0 0; font: 800 26px 'Baloo 2'; color: var(--wb); } .rar { font: 800 12px 'Baloo 2'; letter-spacing: 1px; text-transform: uppercase; }
+  .job { font-size: 13px; color: #614631; font-weight: 700; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+  .stat { background: var(--wm); border: 3px solid var(--wb); border-radius: 10px; padding: 6px; color: var(--cream); font: 800 15px 'Baloo 2'; } .stat small { display: block; font: 700 10px 'Quicksand'; color: var(--wl); }
+  .lvbar { height: 12px; background: var(--wb); border-radius: 6px; overflow: hidden; margin-top: 4px; } .lvbar i { display: block; height: 100%; background: var(--green); transition: width .5s; }
+  .sig { background: #fff; border: 3px dashed #d1bfa7; border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 700; color: #614631; text-align: left; }
+  .sig b { color: var(--wb); font-family: 'Baloo 2'; font-size: 14px; }
+  .up { width: 100%; margin-top: 12px; background: var(--gold); border: 4px solid var(--wb); border-radius: 12px; padding: 10px; font: 800 17px 'Baloo 2'; color: var(--brown); cursor: pointer; box-shadow: 0 5px 0 var(--wd); } .up:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--wd); } .up:disabled { opacity: .5; cursor: not-allowed; }
+  .note { font-size: 12px; color: #614631; font-weight: 700; margin-top: 8px; }
+  .fx { position: absolute; left: 50%; top: 40%; font: 800 22px 'Baloo 2'; color: var(--gold); text-shadow: 2px 2px 0 var(--wb); pointer-events: none; animation: fl 1s ease-out forwards; } @keyframes fl { to { transform: translate(var(--dx), var(--dy)) scale(1.4); opacity: 0; } }
+</style>
+</head>
+<body>
+<div id="beans"></div>
+<div class="page">
+  <div class="bar"><h1>👥 Roster</h1><div><span class="badge">🪙 <span id="coins">0</span></span><span class="badge">💎 <span id="gems">0</span></span><button class="btn" onclick="location.href='main.html'">◀ Main Menu</button></div></div>
+  <div class="main"><div class="grid" id="grid"></div><div class="panel" id="panel"></div></div>
+</div>
+<script src="campaign.js"></script>
+<script src="cloud.js"></script>
+<script>
+  const R = [
+    { n: "Kairo", r: "Common", job: "Barista", wp: "Giant Coffee Cup", hp: 150, sig: null },
+    { n: "Hana", r: "Common", job: "Café Cleaner", wp: "Mop Spear", hp: 150, sig: ["Mop Sweep", "16 damage, gain 10 shield"] },
+    { n: "Sora", r: "Common", job: "Delivery Staff", wp: "Delivery Box", hp: 140, sig: ["Express Delivery", "18 damage, gain 1 EP"] },
+    { n: "Mimi", r: "Rare", job: "Pastry Chef", wp: "Whisk Rapier", hp: 135, sig: ["Whisk Flurry", "4 rapid hits, 32 damage"] },
+    { n: "Ryu", r: "Rare", job: "Head Chef", wp: "Iron Wok", hp: 170, sig: ["Iron Wok Slam", "45 damage, gain 15 shield"] },
+    { n: "Yuki", r: "Rare", job: "Milk Tea Staff", wp: "Boba Cannon", hp: 130, sig: ["Boba Barrage", "5 shots, 40 damage"] },
+    { n: "Lena", r: "Rare", job: "Baker", wp: "Rolling Pin Hammer", hp: 160, sig: ["Rolling Pin Smash", "heavy 50 damage"] },
+    { n: "Rei", r: "Rare", job: "Cashier", wp: "Golden Tray", hp: 140, sig: ["Golden Tray", "gain 25 shield, deal 10"] },
+    { n: "Luna", r: "Rare", job: "Café Performer", wp: "Moonlight Mic", hp: 130, sig: ["Moonlight Encore", "30 damage, heal 20 HP"] },
+    { n: "Akira", r: "Legendary", job: "Café Manager", wp: "Espresso Core", hp: 190, sig: ["Espresso Core Overload", "90 damage ultimate (3 EP)"] }
+  ];
+  const COL = { Common: "#3399ff", Rare: "#9933ff", Legendary: "#ffaa00" }, MAXLV = 10, $ = id => document.getElementById(id);
+  const load = () => { let g = null; try { g = JSON.parse(localStorage.getItem("cafe_clash_gacha") || "null"); } catch (e) {} return Object.assign({ gems: 150, owned: {}, pity: 0, coins: 0, claimed: {}, levels: {} }, g || {}); };
+  let W = load(), sel = "Kairo", first = true;
+  const own = n => n === "Kairo" ? Math.max(1, W.owned[n] || 0) : (W.owned[n] || 0);
+  const lvl = n => (W.levels || {})[n] || 1, hpAt = (r, l) => Math.round(r.hp * (1 + .08 * (l - 1))), atkAt = l => Math.round(4 * (l - 1));
+  const cost = n => Math.round(100 * lvl(n) * (1 - Math.min(.5, .25 * Math.max(0, own(n) - 1))));
+
+  function render() {
+    $("coins").textContent = (W.coins || 0).toLocaleString(); $("gems").textContent = W.gems;
+    const g = $("grid"); g.innerHTML = "";
+    R.forEach((r, i) => {
+      const d = document.createElement("div"); d.className = "card " + r.r + (own(r.n) ? "" : " locked") + (r.n === sel ? " sel" : "");
+      if (first) d.style.animationDelay = i * 50 + "ms"; else d.style.animation = "none";
+      d.appendChild(spriteImg(r.n, getStoryImg(r.n, "neutral"), "neutral", 96));
+      d.insertAdjacentHTML("beforeend", `<div class="nm">${own(r.n) ? r.n : "???"}</div><div class="lv">${own(r.n) ? "Lv " + lvl(r.n) : "Locked"}</div>${own(r.n) > 1 ? `<div class="x">×${own(r.n)}</div>` : ""}`);
+      d.onclick = () => { sel = r.n; render(); }; g.appendChild(d);
+    });
+    first = false; panel();
+  }
+  function panel() {
+    const r = R.find(x => x.n === sel), p = $("panel"), has = own(sel) > 0, l = lvl(sel);
+    p.innerHTML = `<div class="sp" id="sp"></div><h2>${has ? r.n : "???"}</h2><div class="rar" style="color:${COL[r.r]}">${r.r}</div><div class="job">${has ? r.job + " — " + r.wp : "Not found yet"}</div>`;
+    $("sp").appendChild(spriteImg(r.n, getStoryImg(r.n, "neutral"), "neutral", 200)); if (!has) $("sp").firstChild.style.filter = "brightness(0) opacity(.35)";
+    if (!has) { p.insertAdjacentHTML("beforeend", `<div class="note">Pull this character in the Brew Station!</div><button class="up" onclick="location.href='gacha.html'">☕ Go to Brew Station</button>`); return; }
+    const c = cost(sel), max = l >= MAXLV;
+    p.insertAdjacentHTML("beforeend", `<div class="stats"><div class="stat"><small>LEVEL</small>${l} / ${MAXLV}<div class="lvbar"><i style="width:${l / MAXLV * 100}%"></i></div></div><div class="stat"><small>MAX HP</small>${hpAt(r, l)}</div><div class="stat"><small>DAMAGE BONUS</small>+${atkAt(l)}%</div><div class="stat"><small>DUPLICATES</small>${Math.max(0, own(sel) - 1)}</div></div>
+      <div class="sig"><b>${r.sig ? r.sig[0] : "Balanced starter"}</b><br>${r.sig ? r.sig[1] + " (2 copies in your deck)" : "No signature card, but a reliable all-rounder."}</div>
+      <button class="up" id="upBtn" ${max || W.coins < c ? "disabled" : ""}>${max ? "MAX LEVEL" : "Level Up — 🪙 " + c}</button>
+      <div class="note">${max ? "Fully trained!" : "Next level: +8% HP, +4% damage." + (own(sel) > 1 ? " Duplicates cut the cost." : "")}${!max && W.coins < c ? "<br>Win battles to earn more coins." : ""}</div>`);
+    const b = $("upBtn"); if (b && !max) b.onclick = () => levelUp(c);
+  }
+  function levelUp(c) {
+    W = load(); if (W.coins < c || lvl(sel) >= MAXLV) return;
+    W.coins -= c; W.levels = W.levels || {}; W.levels[sel] = lvl(sel) + 1;
+    localStorage.setItem("cafe_clash_gacha", JSON.stringify(W)); render();
+    const p = $("panel"); const t = document.createElement("div"); t.className = "fx"; t.textContent = "LEVEL UP!"; t.style.cssText += "--dx:-50%;--dy:-60px;font-size:30px"; p.appendChild(t);
+    for (let i = 0; i < 14; i++) { const s = document.createElement("div"); s.className = "fx"; s.textContent = "✦"; s.style.cssText += `--dx:${Math.random() * 240 - 120}px;--dy:${Math.random() * 200 - 120}px`; p.appendChild(s); }
+    setTimeout(() => p.querySelectorAll(".fx").forEach(e => e.remove()), 1100);
+  }
+  (function () { const b = $("beans"); for (let i = 0; i < 18; i++) { const e = document.createElement("i"), s = 12 + Math.random() * 18; e.style.cssText = `left:${Math.random() * 100}vw;width:${s}px;height:${s * .75}px;animation-duration:${6 + Math.random() * 7}s;animation-delay:${Math.random() * 8}s`; b.appendChild(e); } })();
+  render();
+</script>
+<script src="music.js"></script>
+<script>MUSIC.play("menu");</script>
+</body>
+</html>

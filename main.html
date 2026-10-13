@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Café Clash: Midnight Brew — Main Lobby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Quicksand:wght@600;750&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wood-dark: #6c4228;
+    --wood-main: #b88654;
+    --wood-light: #e3bc88;
+    --wood-border: #422413;
+    --cream-bg: #fdf5e6;
+    --green-accent: #7ca968;
+    --gold: #e6b84c;
+    --text-brown: #331a0d;
+  }
+  * { box-sizing: border-box; }
+  
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Quicksand', sans-serif;
+    color: var(--text-brown);
+    user-select: none;
+    background: #3b281a;
+  }
+
+  /* --- ANIMATED COFFEE-THEMED BACKGROUND --- */
+  .coffee-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, #4a321f 0%, #2e1d11 100%);
+    overflow: hidden;
+  }
+
+  /* Floating Pixelated / Cozy Coffee Beans & Steam */
+  .bg-element {
+    position: absolute;
+    bottom: -60px;
+    background: rgba(227, 188, 136, 0.15);
+    border: 3px solid rgba(108, 66, 40, 0.4);
+    border-radius: 50%;
+    animation: floatCoffeeUp 10s linear infinite;
+  }
+
+  @keyframes floatCoffeeUp {
+    0% {
+      transform: translateY(0) translateX(0) rotate(0deg);
+      opacity: 0;
+    }
+    15% {
+      opacity: 0.6;
+    }
+    85% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: translateY(-110vh) translateX(50px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* --- MAIN LOBBY CONTAINER --- */
+  .lobby-container {
+    position: relative;
+    z-index: 5;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 25px 35px;
+    animation: fadeInContainer 0.5s ease-out;
+  }
+  @keyframes fadeInContainer {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* --- TOP WOODEN HUD (Enlarged) --- */
+  .top-hud {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--wood-main);
+    border: 5px solid var(--wood-border);
+    border-radius: 16px;
+    padding: 16px 30px;
+    box-shadow: 0 8px 0 var(--wood-dark), 0 12px 25px rgba(0,0,0,0.3);
+    animation: slideDownBar 0.4s ease-out;
+  }
+  @keyframes slideDownBar {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .resource-group {
+    display: flex;
+    gap: 25px;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--cream-bg);
+  }
+
+  .resource-badge {
+    background: var(--wood-dark);
+    border: 3px solid var(--wood-border);
+    padding: 8px 18px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* --- CENTER CAFÉ LOBBY STAGE --- */
+  .lobby-center {
+    position: relative;
+    z-index: 5;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 35px;
+  }
+
+  /* Extra Large Pure Floating Logo Image */
+  .game-logo-img {
+    max-width: 480px;
+    max-height: 220px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 16px rgba(0,0,0,0.4));
+    animation: floatLogo 4s ease-in-out infinite;
+  }
+  @keyframes floatLogo {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-12px) scale(1.04); }
+  }
+
+  /* Main Menu Buttons Grid (Enlarged & High Contrast) */
+  .menu-grid {
+    display: flex;
+    gap: 25px;
+  }
+
+  .menu-card {
+    width: 230px;
+    background: var(--cream-bg);
+    border: 5px solid var(--wood-border);
+    border-radius: 20px;
+    padding: 30px 24px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 10px 0 var(--wood-dark), 0 18px 30px rgba(0,0,0,0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: cardSlideUp 0.5s ease backwards;
+  }
+  .menu-card:nth-child(1) { animation-delay: 0.1s; }
+  .menu-card:nth-child(2) { animation-delay: 0.2s; }
+  .menu-card:nth-child(3) { animation-delay: 0.3s; }
+  .menu-card:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes cardSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .menu-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 14px 0 var(--wood-dark), 0 22px 35px rgba(0,0,0,0.4);
+  }
+  .menu-card:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 var(--wood-dark);
+  }
+
+  .menu-title { font-family: 'Baloo 2', sans-serif; font-size: 24px; font-weight: 800; color: var(--wood-border); }
+
+  /* --- BOTTOM WOODEN FOOTER (Enlarged) --- */
+  .lobby-footer {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--wood-main);
+    border: 5px solid var(--wood-border);
+    border-radius: 16px;
+    padding: 16px 25px;
+    box-shadow: 0 8px 0 var(--wood-dark), 0 12px 25px rgba(0,0,0,0.3);
+    animation: slideUpFooter 0.4s ease-out;
+  }
+  @keyframes slideUpFooter {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .wood-btn {
+    background: var(--wood-dark);
+    border: 3px solid var(--wood-border);
+    color: var(--wood-light);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 0 var(--wood-border);
+    transition: all 0.1s ease;
+  }
+  .wood-btn:hover { background: var(--wood-border); color: #fff; }
+  .wood-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--wood-border); }
+</style>
+</head>
+<body>
+
+  <!-- Animated Coffee Background Elements -->
+  <div class="coffee-bg" id="coffeeBgContainer"></div>
+
+  <div class="lobby-container">
+
+    <!-- Top Wood HUD -->
+    <div class="top-hud">
+      <div style="font-family: 'Baloo 2', sans-serif; font-size: 26px; font-weight: 800; color: var(--cream-bg);">Midnight Café Hub</div>
+      <div class="resource-group">
+        <div class="resource-badge">Coins: <span id="coinCount">1,250</span></div>
+        <div class="resource-badge">Gems: <span id="gemCount">150</span></div>
+        
+      </div>
+    </div>
+
+    <!-- Center Stage with Huge Pure Logo -->
+    <div class="lobby-center">
+      
+      <!-- Huge Pure Logo Graphic with Floating Animation -->
+      <img src="logo.png" alt="Game Logo" class="game-logo-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'150\'><text x=\'10\' y=\'90\' font-family=\'Baloo 2\' font-size=\'36\' font-weight=\'bold\' fill=\'%23fdf5e6\'>LOGO PLACEHOLDER</text></svg>'">
+
+      <!-- Large Menu Cards (No Emojis) -->
+      <div class="menu-grid">
+        <div class="menu-card" onclick="window.location.href='map.html'">
+          <div class="menu-title">Adventure</div>
+        </div>
+        <div class="menu-card" onclick="window.location.href='gacha.html'">
+          <div class="menu-title">Brew Station</div>
+        </div>
+        <div class="menu-card" onclick="window.location.href='roster.html'">
+          <div class="menu-title">Roster</div>
+        </div>
+        <div class="menu-card" onclick="window.location.href='story.html'">
+          <div class="menu-title">Story Log</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Wood Footer -->
+    <div class="lobby-footer">
+      <button class="wood-btn" onclick="openSettings()">Settings</button>
+      <div style="font-family: 'Baloo 2', sans-serif; font-size: 20px; font-weight: 800; color: var(--cream-bg);">Select a game mode to begin your shift!</div>
+      <button class="wood-btn" onclick="window.location.href='map.html'">Launch Adventure</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Generate animated floating coffee bean / steam particles dynamically
+    function initCoffeeBackground() {
+      const container = document.getElementById("coffeeBgContainer");
+      for (let i = 0; i < 25; i++) {
+        let bean = document.createElement("div");
+        bean.className = "bg-element";
+        let size = (Math.random() * 20 + 15) + "px";
+        bean.style.width = size;
+        bean.style.height = (parseFloat(size) * 0.75) + "px"; // Bean shape ratio
+        bean.style.left = Math.random() * 100 + "vw";
+        bean.style.animationDuration = (Math.random() * 7 + 6) + "s";
+        bean.style.animationDelay = (Math.random() * 8) + "s";
+        container.appendChild(bean);
+      }
+    }
+    initCoffeeBackground();
+  </script>
+
+<script src="cloud.js"></script>
+<script>try{var g=JSON.parse(localStorage.getItem("cafe_clash_gacha")||"null")||{};document.getElementById("gemCount").textContent=g.gems===undefined?150:g.gems;document.getElementById("coinCount").textContent=(g.coins||0).toLocaleString();}catch(e){}</script>
+<script src="music.js"></script>
+<script>MUSIC.play("menu");</script>
+<script src="help.js"></script>
+<style>
+  #setBox{position:fixed;inset:0;z-index:20000;background:rgba(15,8,28,.85);display:none;align-items:center;justify-content:center}
+  #setBox .sc{width:min(400px,92vw);background:#fdf5e6;border:5px solid #422413;border-radius:18px;padding:22px 26px;box-shadow:0 10px 0 #6c4228;color:#331a0d;font-family:Quicksand,sans-serif;animation:sp .3s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes sp{from{transform:scale(.7);opacity:0}}
+  #setBox h3{margin:0 0 12px;font:800 26px 'Baloo 2',sans-serif;text-align:center;color:#422413}
+  #setBox .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0;font-weight:800}
+  #setBox .sb{background:#e6b84c;border:4px solid #422413;border-radius:10px;padding:8px 14px;font:800 15px 'Baloo 2',sans-serif;color:#331a0d;cursor:pointer;box-shadow:0 4px 0 #6c4228;width:100%;margin-top:8px}
+  #setBox .sb.alt{background:#e3bc88}#setBox input[type=range]{width:150px;accent-color:#b88654}
+</style>
+<div id="setBox" onclick="closeSettings()"><div class="sc" onclick="event.stopPropagation()">
+  <h3>⚙️ Settings</h3>
+  <div class="row"><span>Music volume</span><input type="range" id="setVol" min="0" max="100"></div>
+  <div class="row"><span>Music</span><label><input type="checkbox" id="setMute"> Muted</label></div>
+  <button class="sb alt" onclick="closeSettings();HELP.show()">❓ How to play</button>
+  <button class="sb alt" id="setOut" onclick="signOut()">🚪 Sign out</button>
+  <button class="sb" onclick="closeSettings()">Close</button>
+</div></div>
+<script>
+  function openSettings(){
+    var v = parseFloat(localStorage.getItem('cc_music_vol') || '0.5');
+    document.getElementById('setVol').value = Math.round(v * 100);
+    document.getElementById('setMute').checked = localStorage.getItem('cc_music_muted') === 'true';
+    var s = null; try { s = JSON.parse(localStorage.getItem('cc_session') || 'null'); } catch(e){}
+    document.getElementById('setOut').textContent = s && s.guest ? '🚪 Back to login' : '🚪 Sign out';
+    document.getElementById('setBox').style.display = 'flex';
+  }
+  function closeSettings(){ document.getElementById('setBox').style.display = 'none'; }
+  document.getElementById('setVol').oninput = function(){ MUSIC.setVol(this.value / 100); };
+  document.getElementById('setMute').onchange = function(){ MUSIC.setMuted(this.checked); };
+  function signOut(){
+    var s = null; try { s = JSON.parse(localStorage.getItem('cc_session') || 'null'); } catch(e){}
+    if (s && !s.guest && typeof CLOUD !== 'undefined') CLOUD.clearLocal();
+    localStorage.removeItem('cc_session'); location.href = 'index.html';
+  }
+</script>
+</body>
+</html>
